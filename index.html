@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Manager</title>
+</head>
+<body>
+    <div class="container">
+        <h1>Task Manager</h1>
+        <form id="taskForm">
+            <input type="text" id="taskName" placeholder="Task Name" required>
+            <input type="text" id="description" placeholder="Description">
+            <select id="status" required>
+                <option value="pending">Pending</option>
+                <option value="in-progress">In Progress</option>
+                <option value="completed">Completed</option>
+            </select>
+            <button type="submit">Add Task</button>
+        </form>
+
+        <h2>Tasks</h2>
+        <ul id="taskList"></ul>
+    </div>
+
+    <script>
+        const form = document.getElementById('taskForm');
+        const taskList = document.getElementById('taskList');
+
+        const fetchTasks = async () => {
+            const response = await fetch('http://localhost:8090/');
+            const tasks = await response.json();
+            taskList.innerHTML = ''; 
+
+            tasks.map(task => {
+                taskList.innerHTML += `${task.taskName} - ${task.description} (Status: ${task.status})<br>`;
+            });
+        };
+
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const taskName = document.getElementById('taskName').value;
+            const description = document.getElementById('description').value;
+            const status = document.getElementById('status').value;
+
+            await fetch('http://localhost:8090/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ taskName, description, status })
+            });
+
+            fetchTasks(); 
+        });
+
+        fetchTasks(); 
+    </script>
+</body>
+</html>
